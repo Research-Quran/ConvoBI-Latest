@@ -27,56 +27,95 @@ def process_file(file_option):
         print(st.session_state['file_uploader'])
         print('inside process_file')
         print('Uploaded file ' + st.session_state['file_uploader'].name)
-        excel_file=pd.ExcelFile(st.session_state['file_uploader'])
+        excel_file = pd.ExcelFile(st.session_state['file_uploader'])
         
         db_user = Configs.db_user
-        db_password = urllib.parse.quote_plus(Configs.db_password)  # URL-encode the password
-        db_host =Configs.db_host
+        db_password = urllib.parse.quote_plus(Configs.db_password)
+        db_host = Configs.db_host
         db_port = Configs.db_port
         db_name = st.session_state.get('selected_db') or Configs.db_name
         engine = create_engine(f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}')
         session = Session(engine)
-        for sheet in excel_file.sheet_names:
-            table_name = sheet
-            print(f"Processing sheet: {sheet}")
-            data = pd.read_excel(st.session_state['file_uploader'], sheet_name=sheet)
-            #print(data.columns)
-            print(f"Inserting data into table: {table_name}")
-            try:
-                print(engine)
-                data.to_sql(table_name, engine, schema="genaipoc", if_exists=file_option.lower(), index=False)
-                print(f"Data from sheet '{sheet}' successfully inserted into table '{table_name}'")
-                st.success("Imported "+sheet +" successfully. into "+db_name)
-              
-            except Exception as e:
-                print(f"Error inserting data from sheet '{sheet}' into table '{table_name}': {str(e)}")
-                st.error("Importing "+sheet +" failed."+ str(e))
-        
+
         try:
-            
-            #cursor=ConnectPostGres.fetch_pg_cursor()
-            if(file_option.upper()=='REPLACE'):
-                session.execute(text(open('files/DB_Workflow_replace.sql','r').read()))
-            #cursor.connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-            session.execute(text(open('files/DB_Workflow.sql','r').read()))
+            # Step 1: Create schema
+            session.execute(text('CREATE SCHEMA IF NOT EXISTS "genaipoc"'))
+            session.commit()
+            st.success("Schema created successfully.")
+
+            # Step 2: Check if tables exist and truncate if necessary
+            if file_option.upper() == 'REPLACE':
+                # Check which tables exist
+                check_tables_sql = """
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_schema = 'genaipoc'
+                """
+                result = session.execute(text(check_tables_sql))
+                existing_tables = [row[0] for row in result]
+                
+                if existing_tables:  # Only try to truncate if tables exist
+                    try:
+                        # Build truncate statements for existing tables
+                        truncate_statements = []
+                        for table in existing_tables:
+                            truncate_statements.append(f'TRUNCATE TABLE "genaipoc"."{table}" CASCADE')
+                        
+                        # Execute all truncate statements in a single transaction
+                        for stmt in truncate_statements:
+                            session.execute(text(stmt))
+                        session.commit()
+                        st.success("Existing tables truncated successfully.")
+                    except Exception as e:
+                        session.rollback()
+                        st.error(f"Error truncating tables: {str(e)}")
+                        return
+
+            # Step 3: Create tables if they don't exist
+            with open('files/DB_Workflow.sql', 'r') as f:
+                sql_script = f.read()
+                
+            # Execute CREATE TABLE statements
+            for statement in sql_script.split(';'):
+                statement = statement.strip()
+                if statement and 'CREATE TABLE' in statement.upper():
+                    try:
+                        session.execute(text(statement))
+                        session.commit()
+                    except Exception as e:
+                        # Ignore if table already exists
+                        if 'already exists' not in str(e):
+                            print(f"Warning: Table creation statement failed: {str(e)}")
+                        continue
+
+            # Step 4: Process Excel file and insert into input tables
+            for sheet in excel_file.sheet_names:
+                table_name = sheet
+                print(f"Processing sheet: {sheet}")
+                data = pd.read_excel(st.session_state['file_uploader'], sheet_name=sheet)
+                try:
+                    data.to_sql(table_name, engine, schema="genaipoc", if_exists=file_option.lower(), index=False)
+                    print(f"Data from sheet '{sheet}' successfully inserted into table '{table_name}'")
+                    st.success("Imported "+sheet +" successfully. into "+db_name)
+                except Exception as e:
+                    print(f"Error inserting data from sheet '{sheet}' into table '{table_name}': {str(e)}")
+                    st.error("Importing "+sheet +" failed."+ str(e))
+
+            # Step 5: Execute workflow SQL for data transformations
+            session.execute(text(open('files/DB_Workflow.sql', 'r').read()))
             st.success("Transformed Data uploaded to Target tables.")
             session.commit()
-            session.close()  
-            
-        except Exception as e:
-            session.rollback()
-            session.close()  
-            
-            print('Exception in executing the DB workflow. Error '+ str(e))
-            st.error('Error in DB workflow'+ str(e))
-        
-        try:
+
+            # Step 6: Populate Neo4j
             ConnectNeo4j.fetch_data_from_neo4j()
             st.success("Graph Database Generated Successfully.")
-        except Exception as ex:
-            print('Exception in Generating Graph DB.'+str(ex))
-            st.error('Error generating Graph DB.'+str(ex))
-            
+
+        except Exception as e:
+            session.rollback()
+            st.error(f"Error in process: {str(e)}")
+            return
+        finally:
+            session.close()
     
     
 def main():
