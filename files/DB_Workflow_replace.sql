@@ -1,0 +1,15 @@
+truncate table "genaipoc"."SRC1_STG1";
+truncate table "genaipoc"."SRC2_STG1";
+truncate table "genaipoc"."SRC2_STG2";
+truncate table "genaipoc"."SRC1_KDE";
+truncate table "genaipoc"."SRC2_KDE";
+truncate table "genaipoc"."SRC1_STITCHED";
+truncate table "genaipoc"."PRE_FIN_ACC_TXNS";
+truncate table "genaipoc"."FIN_ACCT_TXNS";
+truncate table "genaipoc"."SRC1_ORPHAN";
+truncate table "genaipoc"."SRC1_HOLD";
+truncate table "genaipoc"."SRC2_HOLD";
+truncate table "genaipoc"."EXCEPTION_TBL";
+-- truncate table "genaipoc"."SRC1_INPUT1";
+-- truncate table "genaipoc"."SRC2_INPUT1";
+-- truncate table "genaipoc"."SRC2_INPUT2";

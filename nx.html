@@ -1,0 +1,155 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 700px;
+                 height: 700px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "data": {"acc_10_acct": "4410210770", "acc_10_amt": "88.18", "acc_10_ccyyddd": "2024150", "acc_10_ctl1": "94", "acc_10_ctl2": "4", "acc_10_ctl3": "0", "acc_10_ctl4": "0", "acc_10_emp_id": "EPIM", "acc_10_id": "3", "acc_10_rec_seq": "3", "acc_10_type": "4.0", "acc_10_usr_tr_cd": "269", "acc_2_acct": "4410210770", "acc_2_amt": "88.18", "acc_2_ccyyddd": "2024150", "acc_2_ctl1": "94", "acc_2_ctl2": "4", "acc_2_ctl3": "0", "acc_2_ctl4": "0", "acc_2_pst_dt": "52924", "acc_2_rec_seq": "3", "acc_2_type": "4.0", "acc_2_univ_desc": "None", "acc_2_usr_tr_cd": "269", "acc_3_acct": "4410210770", "acc_3_amt": "88.18", "acc_3_ccyyddd": "2024150", "acc_3_ctl1": "94", "acc_3_ctl2": "4", "acc_3_ctl3": "0", "acc_3_ctl4": "0", "acc_3_emp_id": "EPIM", "acc_3_id": "3", "acc_3_rec_seq": "3", "acc_3_type": "4.0", "acc_3_usr_tr_cd": "269", "acc_9_acct": "4410210770", "acc_9_amt": "88.18", "acc_9_ccyyddd": "2024150", "acc_9_ctl1": "94", "acc_9_ctl2": "4", "acc_9_ctl3": "0", "acc_9_ctl4": "0", "acc_9_rec_seq": "3", "acc_9_type": "4.0", "acc_9_univ_desc": "None", "acc_9_usr_tr_cd": "269", "acc_acct": "4410210770", "acc_amt": "88.18", "acc_ccyyddd": "2024150", "acc_ctl1": "94", "acc_ctl2": "4", "acc_ctl3": "0", "acc_ctl4": "0", "acc_desc": "None", "acc_desc_cd": "EDISON ONLINE", "acc_dt_cd": "PMT05", "acc_ent_desc": "ONLINE PMT", "acc_ent_dt": "52924.0", "acc_id": "3", "acc_ident": "8610955543POS1", "acc_pst_dt": "52924", "acc_rec_seq": "1", "acc_type": "4.0", "acc_ud_desc": "None", "acc_usr_tr_cd": "269", "dl_as_of_dt": "29-MAY-24", "dl_source_cd": "SRC1", "name": "SRC1_INPUT1"}, "id": "src1_input1", "label": "SRC1_INPUT1", "shape": "dot", "size": 10}, {"color": "#97c2fc", "data": {"acc_10_acct": "4410210770", "acc_10_amt": "88.18", "acc_10_ccyyddd": "2024150", "acc_10_ctl1": "94", "acc_10_ctl2": "4", "acc_10_ctl3": "0", "acc_10_ctl4": "0", "acc_10_emp_id": "EPIM", "acc_10_id": "3", "acc_10_rec_seq": "3", "acc_10_type": "4", "acc_10_usr_tr_cd": "269", "acc_2_acct": "4410210770", "acc_2_amt": "88.18", "acc_2_ccyyddd": "2024150", "acc_2_ctl1": "94", "acc_2_ctl2": "4", "acc_2_ctl3": "0", "acc_2_ctl4": "0", "acc_2_pst_dt": "52924", "acc_2_rec_seq": "3", "acc_2_type": "4", "acc_2_univ_desc": "None", "acc_2_usr_tr_cd": "269", "acc_3_acct": "4410210770", "acc_3_amt": "88.18", "acc_3_ccyyddd": "2024150", "acc_3_ctl1": "94", "acc_3_ctl2": "4", "acc_3_ctl3": "0", "acc_3_ctl4": "0", "acc_3_emp_id": "EPIM", "acc_3_id": "3", "acc_3_rec_seq": "3", "acc_3_type": "4", "acc_3_usr_tr_cd": "269", "acc_9_acct": "4410210770", "acc_9_amt": "88.18", "acc_9_ccyyddd": "2024150", "acc_9_ctl1": "94", "acc_9_ctl2": "4", "acc_9_ctl3": "0", "acc_9_ctl4": "0", "acc_9_rec_seq": "3", "acc_9_type": "4", "acc_9_univ_desc": "None", "acc_9_usr_tr_cd": "269", "acc_acct": "4410210770", "acc_amt": "88.18", "acc_ccyyddd": "2024150", "acc_ctl1": "94", "acc_ctl2": "4", "acc_ctl3": "0", "acc_ctl4": "0", "acc_desc": "None", "acc_desc_cd": "EDISON ONLINE", "acc_dt_cd": "PMT05", "acc_ent_desc": "ONLINE PMT", "acc_ent_dt": "52924", "acc_id": "3", "acc_ident": "8610955543POS1", "acc_pst_dt": "52924", "acc_rec_seq": "1", "acc_type": "4", "acc_ud_desc": "None", "acc_usr_tr_cd": "269", "dl_as_of_dt": "29-MAY-24", "dl_source_cd": "SRC1", "name": "SRC1_STG1"}, "id": "src1_stg1", "label": "SRC1_STG1", "shape": "dot", "size": 10}, {"color": "#97c2fc", "data": {"acc_ident": "8610955543POS1", "bnf_acct_id": "None", "bnf_acct_id_type": "None", "dl_as_of_dt": "2024-05-29", "dl_source_cd": "SRC1", "drcr_in": "4", "name": "SRC1_KDE", "origntr_acct_id": "SRC1-00940004000000004410210770", "origntr_acct_id_type": "IA", "tran_acct1_tmp": "00000004410210770", "tran_amnt": "88.18", "tran_amnt_act_cur": "88.18", "tran_amt_tmp": "88.18", "tran_desc": "ONLINE PMT|", "tran_dt_tmp": "2024-05-29", "tran_prod_type_cd_tmp": "269", "tran_ref_no": "0094000400000000441021077020241503", "tran_type_cd_tmp": "SRC1_SRC2_ACH", "tran_val_dt": "2024-05-29"}, "id": "src1_kde", "label": "SRC1_KDE", "shape": "dot", "size": 10}, {"color": "#97c2fc", "data": {"bnf_acct_id": "None", "dl_as_of_dt": "2024-05-29", "dl_source_cd": "SRC1", "drcr_in": "4", "lkp_tran_ref_no": "2024150007016988", "name": "SRC1_STITCHED", "origintr_acct_id": "2024-05-29", "stitch_flag": "1", "tran_acct1_tmp": "00000004410210770", "tran_amnt_act_cur": "None", "tran_amt_tmp": "88.18", "tran_desc": "ONLINE PMT|", "tran_dt_tmp": "2024-05-29", "tran_grp_cd_tmp": "SRC1_SRC2_KDE", "tran_prod_type_cd_tmp": "269", "tran_ref_no": "0094000400000000441021077020241503", "tran_type_cd_tmp": "None", "tran_val_dt": "2024-05-29", "txn_amt": "88.18"}, "id": "src1_stitched", "label": "SRC1_STITCHED", "shape": "dot", "size": 10}, {"color": "#97c2fc", "data": {"acc_ident_nbr": "TDB160955543POS", "dl_as_of_dt": "2025-02-20", "dl_source_cd": "SRC1", "drcr_in": "D", "nacha_060_dtl_par": "2024150007016988", "nacha_5": "5200CON EDISON                          9500000000WEBONLINE PMT2405292405291501121141280003799", "nacha_6": "627011103093000000044102107700000008818TDB160955543POSORTIZ,SANTOS          S 0121141280702276", "name": "SRC2_KDE", "origntr_acct_id": "00000004410210770", "tran_acct1_tmp": "00000004410210770", "tran_amt_tmp": "88.18", "tran_dt_tmp": "2024-05-29", "txn_amt": "88"}, "id": "src2_kde", "label": "SRC2_KDE", "shape": "dot", "size": 10}, {"color": "#97c2fc", "data": {"TRtran_prod_type_cd_tmp": "88.18", "account_number": "00000004410210770", "drcr_indicator": "ONLINE PMT|", "fic_mis_date": "2024-05-29", "name": "PRE_FIN_ACC_TXNS", "txn_amt": "2024-05-29", "txn_amt_acy": "SRC1", "txn_desc": "269", "txn_ref_no": "0094000400000000441021077020241503", "txn_value_date": "4"}, "id": "pre_fin_acc_txns", "label": "PRE_FIN_ACC_TXNS", "shape": "dot", "size": 10}, {"color": "#97c2fc", "data": {"dl_as_of_dt": "2024-05-29 00:00:00", "dl_source_cd": "SRC2", "ifw_eff_dt": "20240529041243", "nacha_050_coll_btch_no": "25059", "nacha_050_coll_file_no": "2024150000004", "nacha_050_coll_pt": "EPN", "nacha_5": "5200CON EDISON                          9500000000WEBONLINE PMT2405292405291501121141280003799", "name": "SRC2_INPUT1"}, "id": "src2_input1", "label": "SRC2_INPUT1", "shape": "dot", "size": 10}, {"color": "#97c2fc", "data": {"dl_as_of_dt": "2024-05-29 00:00:00", "dl_source_cd": "SRC2", "ifw_eff_dt": "20240529041243", "nacha_050_coll_btch_no": "25059", "nacha_050_coll_file_no": "2024150000004", "nacha_050_coll_pt": "EPN", "nacha_5": "5200CON EDISON                          9500000000WEBONLINE PMT2405292405291501121141280003799", "name": "SRC2_STG1"}, "id": "src2_stg1", "label": "SRC2_STG1", "shape": "dot", "size": 10}, {"color": "#97c2fc", "data": {"dl_as_of_dt": "2024-05-29 00:00:00", "dl_source_cd": "SRC2", "ifw_eff_dt": "20240529041243", "nacha_060_coll_btch_no": "25059", "nacha_060_coll_file_no": "2024150000004", "nacha_060_coll_pt": "EPN", "nacha_060_dtl_par": "2024150007016988", "nacha_6": "627011103093000000044102107700000008818TDB160955543POSORTIZ,SANTOS          S 0121141280702276", "name": "SRC2_INPUT2"}, "id": "src2_input2", "label": "SRC2_INPUT2", "shape": "dot", "size": 10}, {"color": "#97c2fc", "data": {"dl_as_of_dt": "2024-05-29 00:00:00", "dl_source_cd": "SRC2", "ifw_eff_dt": "20240529041243", "nacha_060_coll_btch_no": "25059", "nacha_060_coll_file_no": "2024150000004", "nacha_060_coll_pt": "EPN", "nacha_060_dtl_par": "2024150007016988", "nacha_6": "627011103093000000044102107700000008818TDB160955543POSORTIZ,SANTOS          S 0121141280702276", "name": "SRC2_STG2"}, "id": "src2_stg2", "label": "SRC2_STG2", "shape": "dot", "size": 10}, {"color": "#97c2fc", "data": {"TRtran_prod_type_cd_tmp": "269", "account_number": "00000004410210770", "drcr_indicator": "4", "fic_mis_date": "2024-05-29", "name": "FIN_ACCT_TXNS", "txn_amt": "88.18", "txn_amt_acy": "None", "txn_desc": "ONLINE PMT|", "txn_ref_no": "0094000400000000441021077020241503", "txn_value_date": "2024-05-29"}, "id": "fin_acct_txns", "label": "FIN_ACCT_TXNS", "shape": "dot", "size": 10}]);
+                  edges = new vis.DataSet([{"from": "src1_input1", "to": "src1_stg1", "width": 1}, {"from": "src1_stg1", "to": "src1_kde", "width": 1}, {"from": "src1_kde", "to": "src1_stitched", "width": 1}, {"from": "src1_stitched", "to": "src2_kde", "width": 1}, {"from": "src1_stitched", "to": "pre_fin_acc_txns", "width": 1}, {"from": "src2_input1", "to": "src2_stg1", "width": 1}, {"from": "src2_input2", "to": "src2_stg2", "width": 1}, {"from": "src2_stg1", "to": "src2_kde", "width": 1}, {"from": "src2_stg2", "to": "src2_kde", "width": 1}, {"from": "pre_fin_acc_txns", "to": "fin_acct_txns", "width": 1}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
