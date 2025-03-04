@@ -8,9 +8,9 @@ from langchain.tools import tool
 from langchain_core.tools import StructuredTool
 from langchain.agents.agent_types import AgentType
 from langchain_community.llms import Ollama
-import SQLUtility
+from services import SQLUtility
 from langchain.agents.initialize import initialize_agent
-from few_shot_test import construct_few_shot_prompt
+from services.few_shot_test import construct_few_shot_prompt
 import sqlalchemy
 from sqlalchemy.types import DECIMAL
 # import streamlit as st
@@ -152,7 +152,7 @@ class ollama_use:
             result = agent.run(input_text)
             print(result)
             print("Completed: "+str(datetime.datetime.now()))
-            return ''
+            return result
         else:
             llm1 = Ollama(model=Configs.llm_model, base_url=Configs.llm_URL,temperature=0)
             
@@ -166,8 +166,8 @@ class ollama_use:
             output=llm1.invoke(construced_prompt)
             print('Query returned by Model',output)
             response = SQLUtility.execute(output,None)
-            lineagequeries.print_response(response,'Query Generated : \n '+output)            
-            return ''
+            result= lineagequeries.print_response(response,'Query Generated : \n '+output)            
+            return result
 
        
     def openhermes(input_text):

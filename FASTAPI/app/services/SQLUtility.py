@@ -1,11 +1,25 @@
 import psycopg2
 import pandas as pd
 from langchain_community.utilities.sql_database import SQLDatabase
-import Configs
-import streamlit as st
-import ConnectPostGres
+from backend import Configs
+
+from services import ConnectPostGres
 import sqlalchemy
 from sqlalchemy import DECIMAL
+import os
+
+DATABASE_FILE = os.path.join(os.path.dirname(__file__), "selected_database.txt")
+# Function to read the selected database from the file
+def get_selected_database():
+    try:
+        with open(DATABASE_FILE, "r") as file:
+            db_name = file.read().strip()
+            if db_name:
+                return db_name
+    except FileNotFoundError:
+        pass
+    return Configs.db_name  # Fallback to Configs.db_name if file is missing or empty
+
 
 def execute(sql_query):
 
@@ -32,7 +46,7 @@ def execute(query,parameters=''):
     db_password =Configs.db_password
     db_host =Configs.db_host
     db_port = Configs.db_port
-    db_name = st.session_state.get('selected_db') or Configs.db_name
+    db_name = get_selected_database()
     db = SQLDatabase.from_uri(f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}",schema='TD_DEMO_SCHEMA')
     
 # db = SQLDatabase.from_uri(f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_name}",sample_rows_in_table_info=1,include_tables=['customers','orders'],custom_table_info={'customers':"customer"})

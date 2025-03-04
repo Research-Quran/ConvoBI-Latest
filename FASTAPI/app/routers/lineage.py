@@ -3,13 +3,28 @@ from services.llm import ollama_use
 # from SQLUtility import execute
 from backend import Configs
 import requests
+import os
 
 router = APIRouter()
 
+DATABASE_FILE = os.path.join(os.path.dirname(__file__), "selected_database.txt")
+# Function to read the selected database from the file
+def get_selected_database():
+    try:
+        with open(DATABASE_FILE, "r") as file:
+            db_name = file.read().strip()
+            if db_name:
+                return db_name
+    except FileNotFoundError:
+        pass
+    return Configs.db_name  # Fallback to Configs.db_name if file is missing or empty
+
+
+
 @router.get("/config/")
-def get_config(selected_db: str = None):
+def get_config():
     """Returns current database and model configuration. Uses Configs.db_name if no database is selected."""
-    database = selected_db if selected_db else Configs.db_name
+    database = get_selected_database()
 
     return {
         "selected_database": database,
@@ -18,12 +33,11 @@ def get_config(selected_db: str = None):
 
 @router.get("/prompt/")
 def process_prompt(
-    input_text: str = Query(..., description="Enter your prompt"),
-    selected_db: str = None
+    input_text: str = Query(..., description="Enter your prompt")
 ):
     """Processes the given prompt using LLM and returns the output. Uses Configs.db_name if no database is selected."""
     try:
-        database = selected_db if selected_db else Configs.db_name
+        database = get_selected_database()
         print(f"Using Database: {database}")
         print(f"Prompt entered: {input_text}")
 

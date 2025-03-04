@@ -1,6 +1,6 @@
 import psycopg2
-import Configs
-import SQLUtility
+from backend import Configs
+from services import SQLUtility
  
 # Establishing the connection
 def schema_td():

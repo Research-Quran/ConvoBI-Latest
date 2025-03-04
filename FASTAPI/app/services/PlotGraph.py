@@ -4,7 +4,7 @@ import pandas as pd
 from neo4j import GraphDatabase
 import plotly.graph_objects as go
 import networkx as nx
-import Configs
+from backend import Configs
 from pyvis.network import Network
 import urllib.parse
 

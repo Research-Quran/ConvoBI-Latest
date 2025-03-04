@@ -1,63 +1,78 @@
 from fastapi import APIRouter, HTTPException, Query
-from services.llm import ollama_use
-# from SQLUtility import execute
+from sqlalchemy import create_engine, text
+import pandas as pd
 from backend import Configs
-import requests
+import os
+# import SQLUtility
 
 router = APIRouter()
+DATABASE_FILE = os.path.join(os.path.dirname(__file__), "selected_database.txt")
+# DATABASE_FILE = "selected_database.txt"
 
-@router.get("/config/")
-def get_config(selected_db: str = None):
-    """Returns current database and model configuration. Uses Configs.db_name if no database is selected."""
-    database = selected_db if selected_db else Configs.db_name
-
-    return {
-        "selected_database": database,
-        "model": Configs.llm_model
-    }
-
-@router.get("/prompt/")
-def process_prompt(
-    input_text: str = Query(..., description="Enter your prompt"),
-    selected_db: str = None
-):
-    """Processes the given prompt using LLM and returns the output. Uses Configs.db_name if no database is selected."""
+# Function to read the selected database from the file
+def get_selected_database():
     try:
-        database = selected_db if selected_db else Configs.db_name
-        print(f"Using Database: {database}")
-        print(f"Prompt entered: {input_text}")
+        with open(DATABASE_FILE, "r") as file:
+            db_name = file.read().strip()
+            if db_name:
+                return db_name
+    except FileNotFoundError:
+        pass
+    return Configs.db_name  # Fallback to Configs.db_name if file is missing or empty
 
-        llm_object = ollama_use()
-        llm_output = llm_object.call_llm(input_text)
+# Function to create database engine
+def get_engine(db_name):
+
+    db_url = f"postgresql://{Configs.db_user}:{Configs.db_password}@{Configs.db_host}:{Configs.db_port}/{db_name}"
+    return create_engine(db_url)
+
+@router.get("/database_info/")
+def get_database_info():
+    """Fetch database table details for the given database."""
+    db_name = get_selected_database()
+    print(f"database selected: {db_name}")
+    engine = get_engine(db_name)
+
+    try:
+        query = text("""
+            SELECT  
+                c.table_schema AS schema,
+                c.table_name AS table,
+                COUNT(c.column_name) AS "No Of Columns",
+                pg_size_pretty(pg_total_relation_size(t.oid)) AS size
+            FROM 
+                information_schema.columns c
+            JOIN 
+                pg_class t ON c.table_name = t.relname
+            JOIN 
+                pg_namespace n ON n.oid = t.relnamespace 
+                    AND c.table_schema = n.nspname
+            WHERE 
+                c.table_schema NOT IN ('pg_catalog', 'information_schema')
+                AND c.table_schema = 'genaipoc'
+            GROUP BY 
+                c.table_schema,
+                c.table_name,
+                t.oid
+            ORDER BY 
+                c.table_schema,
+                c.table_name;
+        """)
+
+        with engine.connect() as connection:
+            result = connection.execute(query)
+            rows = result.fetchall()
+
+        if not rows:
+            raise HTTPException(status_code=404, detail="No data returned from the query")
+
+        # Convert query results into DataFrame
+        df = pd.DataFrame(rows, columns=['Schema', 'Table', 'No Of Columns', 'Size'])
 
         return {
-            "Database": database,
-            "Prompt": input_text,
-            "Response": llm_output
+            "selected_database": db_name or Configs.db_name,
+            "database_info": df.to_dict(orient="records")
         }
-    
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing prompt: {str(e)}")
-
-@router.get("/check_network/")
-def check_network_connectivity():
-    """Checks network connectivity to a given URL."""
-    URL= Configs.llm_URL
-    try:
-        print(f'Checking URL - {URL}')
-        response = requests.get(URL)
-
-        if response.status_code == 200:
-            return {"URL": URL, "Status": "Online"}
-        else:
-            return {"URL": URL, "Status": f"Response code: {response.status_code}"}
-
-    except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as e:
-        raise HTTPException(status_code=500, detail=f"Unable to establish connection: {e}")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unknown error occurred: {e}")
-
-@router.get("/import_mapping_data/")
-def import_mapping_data():
-    """Dummy function to import mapping data (returns False)."""
-    return {"import_mapping_data": False}
+        raise HTTPException(status_code=500, detail=f"Error fetching data: {str(e)}")

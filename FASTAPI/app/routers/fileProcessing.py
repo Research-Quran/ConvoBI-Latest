@@ -16,17 +16,28 @@ import os
 
 # Initialize Router
 router = APIRouter()
+DATABASE_FILE = os.path.join(os.path.dirname(__file__), "selected_database.txt")
 
+
+def get_selected_database():
+    try:
+        with open(DATABASE_FILE, "r") as file:
+            db_name = file.read().strip()
+            if db_name:
+                return db_name
+    except FileNotFoundError:
+        pass
+    return Configs.db_name  # Fallback to Configs.db_name if file is missing or empty
 
 @router.post("/process_file/")
 async def process_file(
     file: UploadFile = File(...),
     file_option: str = Form("Replace"),
-    selected_db_name: str =None,
     db: Session = Depends(get_db)
 ):
     try:
-        selected_db = selected_db_name if selected_db_name else Configs.db_name  # Use db_name if provided, otherwise use default
+        selected_db = get_selected_database()
+        print(f"In file processing: selected database: {selected_db}")
         excel_file = pd.ExcelFile(file.file)
        
 

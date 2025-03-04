@@ -1,8 +1,8 @@
 from langchain_community.utilities.sql_database import SQLDatabase
 import pandas as pd
 
-import SQLUtility
-import PlotGraph as pg
+from services import SQLUtility
+from services import PlotGraph as pg
 import datetime
 import json
 import sqlalchemy
@@ -10,7 +10,7 @@ from sqlalchemy.types import DECIMAL
 from  services.LineageType import LineageType
 
 # from LineageType import StrEnum
-import cypher_template
+from services import cypher_template
 
 
 mapping_gui_template=r"MATCH(N:{0}) WHERE N.TRAN_AMT={1} and N.TRAN_ACCT='{2}' AND N.TRAN_DT='{3}' RETURN N"	
@@ -662,6 +662,8 @@ def display_lineage(order,txn_ref_no):
         lineage['cypher'].append(val1)
         if(is_full_lineage==True):
             request_type=LineageType.get_lineage_type(LineageType.TOP_TO_BOTTOM_FULL_LINEAGE.value)
+
+        return lineage
             
     elif order == 2:
         resp=SQLUtility.execute(query,parameters={'txn_ref_no':txn_ref_no})
@@ -744,6 +746,8 @@ def display_lineage(order,txn_ref_no):
 
         if(is_full_lineage==True):
             request_type= LineageType.TOP_TO_BOTTOM_FULL_LINEAGE.name
+
+        return lineage
     
     # if (csa_fl==1 and (request_type== LineageType.TOP_TO_BOTTOM_FULL_LINEAGE.name or request_type== LineageType.BOTTOM_TO_TOP_FULL_LINEAGE.name)):
     #     try:
@@ -852,7 +856,10 @@ def get_the_results(order, txn_ref_no):
     else:
         parsed_txnrefno = txn_ref_no
 
-    display_lineage(parsed_order, parsed_txnrefno)
+    lineage_result= display_lineage(parsed_order, parsed_txnrefno)
+    # return json.dumps(lineage_result, indent=4)
+    return lineage_result
+
 
 
 def look_for_records(q):

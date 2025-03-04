@@ -18,10 +18,23 @@
 import sys
 from backend import Configs
 import psycopg2
+import os
+
+DATABASE_FILE = os.path.join(os.path.dirname(__file__), "selected_database.txt")
+# Function to read the selected database from the file
+def get_selected_database():
+    try:
+        with open(DATABASE_FILE, "r") as file:
+            db_name = file.read().strip()
+            if db_name:
+                return db_name
+    except FileNotFoundError:
+        pass
+    return Configs.db_name  # Fallback to Configs.db_name if file is missing or empty
 
 # Connect to PostgreSQL
-def fetch_pg_cursor(selected_db=None):
-    db_name = selected_db or Configs.db_name
+def fetch_pg_cursor():
+    db_name = get_selected_database()
     print(db_name)
     
     pg_conn = psycopg2.connect(
