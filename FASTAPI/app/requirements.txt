@@ -1,0 +1,11 @@
+fastapi 
+uvicorn 
+requests
+python-dotenv
+python-multipart
+psycopg2
+neo4j
+sqlalchemy
+pandas
+openpyxl
+langchain-community
