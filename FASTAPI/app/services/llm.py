@@ -13,6 +13,7 @@ from langchain.agents.initialize import initialize_agent
 from services.few_shot_test import construct_few_shot_prompt
 import sqlalchemy
 from sqlalchemy.types import DECIMAL
+from langchain.memory import ConversationBufferMemory
 # import streamlit as st
 
 class ollama_use:
@@ -145,11 +146,13 @@ class ollama_use:
              self.tools, 
              llm1, 
              agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, 
+             return_intermediate_steps=True,
+             memory=ConversationBufferMemory(memory_key="chat_history", input_key='input', output_key="output"),
              verbose=True
          )
             print('Invoking lineage_query')
              #a=ollama_use.lineage_query(input_text)
-            result = agent.run(input_text)
+            result = agent({"input":input_text})
             print(result)
             print("Completed: "+str(datetime.datetime.now()))
             return result

@@ -657,9 +657,11 @@ def display_lineage(order,txn_ref_no):
         # print(request_type)
         qq=''
         qq=cypher_template.SOURCE1_GENERIC_QUERY
-        val1=qq.format(txn_ref_no)
+        # val1=qq.format(txn_ref_no)
+        val1 = " ".join(qq.format(txn_ref_no).splitlines())
+        print(f"Cypher: {val1}")
         # st.code(val1, language="cypher")
-        lineage['cypher'].append(val1)
+        lineage['cypher'].append(str(val1))
         if(is_full_lineage==True):
             request_type=LineageType.get_lineage_type(LineageType.TOP_TO_BOTTOM_FULL_LINEAGE.value)
 
@@ -740,9 +742,11 @@ def display_lineage(order,txn_ref_no):
         #         qq=cypher_template.TOP_TO_BOTTOM_ORPHAN
         #print(qq)
         qq=cypher_template.SOURCE1_GENERIC_QUERY
-        val1=qq.format(txn_ref_no)
+        # val1=qq.format(txn_ref_no)
+        val1 = " ".join(qq.format(txn_ref_no).splitlines())
+        print(f"cypher: {val1}")
         # st.code(val1, language="cypher")
-        lineage['cypher'].append(val1)
+        lineage['cypher'].append(str(val1))
 
         if(is_full_lineage==True):
             request_type= LineageType.TOP_TO_BOTTOM_FULL_LINEAGE.name

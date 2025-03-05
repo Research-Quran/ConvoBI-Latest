@@ -9,3 +9,7 @@ sqlalchemy
 pandas
 openpyxl
 langchain-community
+plotly
+networkx
+pyvis
+regex
