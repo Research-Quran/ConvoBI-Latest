@@ -8,7 +8,8 @@ import sqlalchemy
 from sqlalchemy import DECIMAL
 import os
 
-DATABASE_FILE = os.path.join(os.path.dirname(__file__), "selected_database.txt")
+# DATABASE_FILE = os.path.join(os.path.dirname(__file__), "selected_database.txt")
+DATABASE_FILE = "selected_database.txt"
 # Function to read the selected database from the file
 def get_selected_database():
     try:

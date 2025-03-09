@@ -11,7 +11,7 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "apexcharts": "^4.4.0",
-    "axios": "^1.7.9",
+    "axios": "^1.8.2",
     "flatpickr": "^4.6.13",
     "jsvectormap": "^1.6.0",
     "keycloak-js": "^26.1.2",

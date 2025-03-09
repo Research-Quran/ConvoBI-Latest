@@ -145,13 +145,7 @@ def get_graph_in_streamlit(default_cypher,order):
 
     # Fetch the graph data
     result = session.run(default_cypher)
-    # print('dd'+str(len(result.data())))
-    
-    
-    # if len(result.data())==0:
-    #     exit()
-    # else:
-    #     print('proceed with Graph')
+
     
      
     # Create a NetworkX graph
@@ -185,17 +179,6 @@ def get_graph_in_streamlit(default_cypher,order):
         Gr.add_node(K['name'].lower(), label=K['name'], data=K._properties)
 
 
-        # Gr.add_edge(B['name'].lower(), C['name'].lower())
-        # Gr.add_edge(B['name'].lower(), A['name'].lower())
-        # Gr.add_edge(D['name'].lower(), C['name'].lower())
-        # Gr.add_edge(F['name'].lower(), D['name'].lower())
-        # Gr.add_edge(I['name'].lower(), F['name'].lower())
-        # Gr.add_edge(E['name'].lower(), C['name'].lower())
-        # Gr.add_edge(G['name'].lower(), E['name'].lower())
-        # Gr.add_edge(J['name'].lower(), G['name'].lower())
-        # Gr.add_edge(E['name'].lower(), C['name'].lower())
-        # Gr.add_edge(H['name'].lower(), E['name'].lower())
-        # Gr.add_edge(H['name'].lower(), K['name'].lower())
 
         Gr.add_edge(B['name'].lower(), A['name'].lower())
         Gr.add_edge(G['name'].lower(), E['name'].lower())
@@ -213,9 +196,9 @@ def get_graph_in_streamlit(default_cypher,order):
 
     session.close()  # Close the session
     
-    nt = Network('700px', '700px')
-    nt.from_nx(Gr)
-    nt.write_html('nx.html',notebook=False,local=False)
+    # nt = Network('700px', '700px')
+    # nt.from_nx(Gr)
+    # nt.write_html('nx.html',notebook=False,local=False)
     
 
     
@@ -256,8 +239,33 @@ def get_graph_in_streamlit(default_cypher,order):
     for node in Gr.nodes():
         #print(f"Assigning position for node: {node}")  # Debugging: Print node names
         Gr.nodes[node]['pos'] = pos.get(node, (0, 0))  # Default to (0, 0) if not specified
-
-    fig = draw_graph(Gr)  # Draw the graph with dynamic positions
-    return fig
+    # Prepare the graph data as JSON response
+    graph_data = {
+        "nodes": [],
+        "edges": [],
+        "positions": {},
+        "order": order
+    }
+    # Prepare node data
+    for node in Gr.nodes(data=True):
+        node_data = {
+            "id": node[0],
+            "label": node[1]["label"],
+            "data": filter_properties(node[1]["data"]),
+        }
+        graph_data["nodes"].append(node_data)
+    # Prepare edge data
+    for edge in Gr.edges(data=True):
+        edge_data = {
+            "source": edge[0],
+            "target": edge[1],
+            "label": edge[2].get('label', ''),
+        }
+        graph_data["edges"].append(edge_data)
+    # Prepare position data
+    for node in Gr.nodes():
+        graph_data["positions"][node] = Gr.nodes[node]["pos"]
+    # fig = draw_graph(Gr)  # Draw the graph with dynamic positions
+    return graph_data
     #st.plotly_chart(fig)  # Show the graph in Streamlit
  

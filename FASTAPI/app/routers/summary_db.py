@@ -6,8 +6,8 @@ import os
 # import SQLUtility
 
 router = APIRouter()
-DATABASE_FILE = os.path.join(os.path.dirname(__file__), "selected_database.txt")
-# DATABASE_FILE = "selected_database.txt"
+# DATABASE_FILE = os.path.join(os.path.dirname(__file__), "selected_database.txt")
+DATABASE_FILE = "selected_database.txt"
 
 # Function to read the selected database from the file
 def get_selected_database():
@@ -30,7 +30,7 @@ def get_engine(db_name):
 def get_database_info():
     """Fetch database table details for the given database."""
     db_name = get_selected_database()
-    print(f"database selected: {db_name}")
+    
     engine = get_engine(db_name)
 
     try:
@@ -70,7 +70,6 @@ def get_database_info():
         df = pd.DataFrame(rows, columns=['Schema', 'Table', 'No Of Columns', 'Size'])
 
         return {
-            "selected_database": db_name or Configs.db_name,
             "database_info": df.to_dict(orient="records")
         }
 

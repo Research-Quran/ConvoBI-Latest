@@ -16,8 +16,9 @@ import os
 
 # Initialize Router
 router = APIRouter()
-DATABASE_FILE = os.path.join(os.path.dirname(__file__), "selected_database.txt")
 
+
+DATABASE_FILE = "selected_database.txt"
 
 def get_selected_database():
     try:
@@ -96,7 +97,7 @@ async def process_file(
         db.commit()
 
         # Step 6: Populate Neo4j
-        ConnectNeo4j.fetch_data_from_neo4j(selected_db)
+        ConnectNeo4j.fetch_data_from_neo4j()
         print("Graph Database Generated Successfully.")
 
         return {"message": "File processed successfully."}

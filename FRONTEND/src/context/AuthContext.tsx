@@ -2,9 +2,16 @@ import { createContext, useState, useEffect, ReactNode } from "react";
 import keycloak from "@/lib/keycloak";
 import { setAuthToken } from "@/actions/http";
 
+interface User {
+    name: string;
+    email: string;
+    username: string;
+}
+
 interface AuthContextType {
     isAuthenticated: boolean
     token: string | null
+    user: User | null
     login: () => void
     logout: () => void
 }
@@ -12,6 +19,7 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType>({
     isAuthenticated: false,
     token: null,
+    user: null,
     login: () => { },
     logout: () => { },
 })
@@ -19,6 +27,7 @@ export const AuthContext = createContext<AuthContextType>({
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [token, setToken] = useState<string | null>(null);
+    const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
         const initKeycloak = () => {
@@ -28,6 +37,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     setIsAuthenticated(authenticated)
                     setToken(keycloak.token ?? null)
                     setAuthToken(keycloak.token ?? null)
+
+                    // 🔹 Fetch user profile details
+                    const userProfile = await keycloak.loadUserProfile();
+                    setUser({
+                        name: userProfile.firstName + " " + userProfile.lastName,
+                        email: userProfile.email ?? "",
+                        username: userProfile.username ?? "",
+                    });
+
                 } else {
                     keycloak.login();
                 }
@@ -43,10 +61,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         keycloak.logout();
         setIsAuthenticated(false);
         setToken(null);
+        setUser(null);
         setAuthToken(null)
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, token, login, logout }}>{children}</AuthContext.Provider>
+        <AuthContext.Provider value={{ isAuthenticated, token, user, login, logout }}>{children}</AuthContext.Provider>
     )
 }

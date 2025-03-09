@@ -7,7 +7,8 @@ import os
 
 router = APIRouter()
 
-DATABASE_FILE = os.path.join(os.path.dirname(__file__), "selected_database.txt")
+# DATABASE_FILE = os.path.join(os.path.dirname(__file__), "selected_database.txt")
+DATABASE_FILE = "selected_database.txt"
 # Function to read the selected database from the file
 def get_selected_database():
     try:
@@ -23,11 +24,9 @@ def get_selected_database():
 
 @router.get("/config/")
 def get_config():
-    """Returns current database and model configuration. Uses Configs.db_name if no database is selected."""
-    database = get_selected_database()
+    """Returns model configuration."""
 
     return {
-        "selected_database": database,
         "model": Configs.llm_model
     }
 

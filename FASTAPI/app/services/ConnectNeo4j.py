@@ -9,14 +9,14 @@ neo4j_driver = GraphDatabase.driver(
     auth=(Configs.NEO4JS_DB_User, Configs.NEO4JS_DB_Password)
 )
 
-def fetch_data_from_neo4j(selected_db):
+def fetch_data_from_neo4j():
     
     session= neo4j_driver.session()
     
     # result = session.run("match (n:csa) return n")
     # for record in result:
     #     print(record)
-    cur = fetch_pg_cursor(selected_db) 
+    cur = fetch_pg_cursor() 
     print(cur)
     
     #Cleanup command:

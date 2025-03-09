@@ -570,6 +570,7 @@ def print_response(db_response: str, description: str):
 def display_lineage(order,txn_ref_no):
     lineage['lineage'] = []  # Clear the 'lineage' list
     lineage['cypher'] = []  # Clear the 'cypher' list
+    lineage['graph'] = []
     lkp_tran_ref_no=dict()
     nacha_5=''
     nacha_6=''
@@ -665,7 +666,7 @@ def display_lineage(order,txn_ref_no):
         if(is_full_lineage==True):
             request_type=LineageType.get_lineage_type(LineageType.TOP_TO_BOTTOM_FULL_LINEAGE.value)
 
-        return lineage
+        # return lineage
             
     elif order == 2:
         resp=SQLUtility.execute(query,parameters={'txn_ref_no':txn_ref_no})
@@ -751,46 +752,49 @@ def display_lineage(order,txn_ref_no):
         if(is_full_lineage==True):
             request_type= LineageType.TOP_TO_BOTTOM_FULL_LINEAGE.name
 
-        return lineage
+        # return lineage
     
-    # if (csa_fl==1 and (request_type== LineageType.TOP_TO_BOTTOM_FULL_LINEAGE.name or request_type== LineageType.BOTTOM_TO_TOP_FULL_LINEAGE.name)):
-    #     try:
-    #         print('Plotting Graph')
-    #         # Use a simpler query that only uses existing nodes and relationships
-    #         var2 = """
-    #         MATCH  (A:SRC1_INPUT1)- [:Extr_from_Src1data1_to_stg1]->(B:SRC1_STG)
-    #         MATCH  (E:SRC2_INPUT1)- [:Extr_from_Src2File1_to_src2st1]->(G:SRC2_STG1)
-    #         MATCH  (F:SRC2_INPUT2)- [:Extr_from_Src2File2_to_src2stg2]->(H:SRC2_STG2)
-    #         MATCH  (G:SRC2_STG1)- [:Extr_from_Src2Stg1_to_kde2]->(I:KDE2)
-    #         MATCH  (H:SRC2_STG2)- [:Extr_from_Src2Stg2_to_kde2]->(I:KDE2)
-    #         MATCH  (B:SRC1_STG)- [:Extr_from_Src1Stg1_to_kde1]->(C:KDE1)
-    #         MATCH  (C:KDE1)- [:Extr_from_kde1_to_stich]->(D:STITCH)
-    #         MATCH  (I:KDE2)- [:Extr_from_kde2_to_Stitch]->(D:STITCH)
-    #         MATCH  (D:STITCH)- [:Extr_from_stitch]->(J:PRECSA)
-    #         MATCH  (J:PRECSA)- [:Extr_from_precsa]->(K:CSA)
-    #         WHERE (substring('0000',0,case size(A.acc_9_ctl1)  when 1 then 3   when 2 then 2  when 3 then 1  when 4 then 0  end)+ 
-    #         A.acc_9_ctl1   + substring('0000',0,CASE size(A.acc_9_ctl2)   when 1 then 3   when 2 then 2  when 3 then 1  when 4 then 0   end)
-    #         + A.acc_9_ctl2    + substring('0000',0,CASE size(A.acc_9_ctl3)   when 1 then 3   when 2 then 2  when 3 then 1  when 4 then 0   end)
-    #         + A.acc_9_ctl3   + substring('0000',0, CASE size(A.acc_9_ctl4)  when 1 then 3   when 2 then 2  when 3 then 1  when 4 then 0   end) + 
-    #         A.acc_9_ctl4  + substring('0000000000',0,CASE size(A.acc_9_acct) when 1 then 9   when 2 then 8  when 3 then 7  when 4 then 6 when 5 then 5 
-    #         when 6 then 4  when 7 then 3  when 8 then 2  when 9 then 1   when 10 then 0 end ) + A.acc_9_acct  + A.acc_9_ccyyddd + A.acc_9_rec_seq )
-    #         ='{0}'
-    #         Return A, B,C,D,E,F,G,H,I,J,K
-    #         """.format(txn_ref_no)
+    if (csa_fl==1 and (request_type== LineageType.TOP_TO_BOTTOM_FULL_LINEAGE.name or request_type== LineageType.BOTTOM_TO_TOP_FULL_LINEAGE.name)):
+        try:
+            print('Plotting Graph')
+            # Use a simpler query that only uses existing nodes and relationships
+            var2 = """
+            MATCH  (A:SRC1_INPUT1)- [:Extr_from_Src1data1_to_stg1]->(B:SRC1_STG)
+            MATCH  (E:SRC2_INPUT1)- [:Extr_from_Src2File1_to_src2st1]->(G:SRC2_STG1)
+            MATCH  (F:SRC2_INPUT2)- [:Extr_from_Src2File2_to_src2stg2]->(H:SRC2_STG2)
+            MATCH  (G:SRC2_STG1)- [:Extr_from_Src2Stg1_to_kde2]->(I:KDE2)
+            MATCH  (H:SRC2_STG2)- [:Extr_from_Src2Stg2_to_kde2]->(I:KDE2)
+            MATCH  (B:SRC1_STG)- [:Extr_from_Src1Stg1_to_kde1]->(C:KDE1)
+            MATCH  (C:KDE1)- [:Extr_from_kde1_to_stich]->(D:STITCH)
+            MATCH  (I:KDE2)- [:Extr_from_kde2_to_Stitch]->(D:STITCH)
+            MATCH  (D:STITCH)- [:Extr_from_stitch]->(J:PRECSA)
+            MATCH  (J:PRECSA)- [:Extr_from_precsa]->(K:CSA)
+            WHERE (substring('0000',0,case size(A.acc_9_ctl1)  when 1 then 3   when 2 then 2  when 3 then 1  when 4 then 0  end)+ 
+            A.acc_9_ctl1   + substring('0000',0,CASE size(A.acc_9_ctl2)   when 1 then 3   when 2 then 2  when 3 then 1  when 4 then 0   end)
+            + A.acc_9_ctl2    + substring('0000',0,CASE size(A.acc_9_ctl3)   when 1 then 3   when 2 then 2  when 3 then 1  when 4 then 0   end)
+            + A.acc_9_ctl3   + substring('0000',0, CASE size(A.acc_9_ctl4)  when 1 then 3   when 2 then 2  when 3 then 1  when 4 then 0   end) + 
+            A.acc_9_ctl4  + substring('0000000000',0,CASE size(A.acc_9_acct) when 1 then 9   when 2 then 8  when 3 then 7  when 4 then 6 when 5 then 5 
+            when 6 then 4  when 7 then 3  when 8 then 2  when 9 then 1   when 10 then 0 end ) + A.acc_9_acct  + A.acc_9_ccyyddd + A.acc_9_rec_seq )
+            ='{0}'
+            Return A, B,C,D,E,F,G,H,I,J,K
+            """.format(txn_ref_no)
             
-    #         # Get the graph visualization
-    #         fig = pg.get_graph_in_streamlit(var2, order)
+            # Get the graph visualization
+            fig = pg.get_graph_in_streamlit(var2, order)
+            lineage['graph'].append(fig)
+
             
-    #         # Check if fig is None before using it
-    #         if fig is not None:
-    #             fig.update_layout(coloraxis_showscale=False)
-    #             st.plotly_chart(fig, use_container_width=True)
-    #         else:
-    #             st.warning("No graph data available to visualize. Please check Neo4j connection and data.")
+            # # Check if fig is None before using it
+            # if fig is not None:
+            #     fig.update_layout(coloraxis_showscale=False)
+            #     st.plotly_chart(fig, use_container_width=True)
+            # else:
+            #     st.warning("No graph data available to visualize. Please check Neo4j connection and data.")
                 
-    #     except Exception as ex:
-    #         print("Error plotting Graph: " + str(ex))
-    #         st.error(f"Error plotting graph: {str(ex)}")
+        except Exception as ex:
+            print("Error plotting Graph: " + str(ex))
+            # st.error(f"Error plotting graph: {str(ex)}")
+    return lineage
         
         
 # def get_the_results(order,txn_ref_no):
